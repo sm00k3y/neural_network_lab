@@ -8,7 +8,9 @@ data_and = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
 data_or = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 1)]
 data_nor = [([0, 0], 1), ([0, 1], 0), ([1, 0], 0), ([1, 1], 0)]
 
-EPOCHS = 20
+data_and_bi = [([-1, -1], -1), ([-1, 1], -1), ([1, -1], -1), ([1, 1], 1)]
+
+EPOCHS = 100
 
 
 def perceptron_test():
@@ -30,11 +32,11 @@ def adaline_test():
     '''
     print("\nAdaline:")
     adaline = Adaline()
-    adaline.init(data_and)
+    adaline.init(data_and_bi)
     # for _ in range(EPOCHS):
     adaline.train()
     adaline.print_wages_and_bias()
-    adaline.classify(data_nor)
+    adaline.classify(data_and_bi)
 
 
 if __name__ == "__main__":

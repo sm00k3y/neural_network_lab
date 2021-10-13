@@ -4,7 +4,7 @@ import numpy as np
 class Adaline:
     def __init__(self):
         self.wages = [0.1, 0.05]
-        self.min_accurracy = 0.1
+        self.min_accurracy = 0.5
         self.threshold = 0
         self.bias = 0
         self.learning_rate = 0.05
@@ -36,15 +36,15 @@ class Adaline:
                 # test_y = self.bipolar_function(exct_val)
                 square_err = self.calculate_square_error(y, exct_val)
                 self.update_wages_and_bias(values, square_err)
-                errors.append(square_err)
+                errors.append(square_err**2)
 
-            sum_err = np.sum(errors)
+            sum_err = np.sum(errors) / len(self.data)
 
     def calculate_square_error(self, y, exct_val):
-        print("Wages", self.wages)
-        print(exct_val)
-        square_err = (y - exct_val)**2
-        # square_err = pow(y - exct_val, 2)
+        # print("Wages", self.wages)
+        # print(exct_val)
+        square_err = (y - exct_val)
+        print(square_err)
         return square_err
         # return y - test_y
 
@@ -59,7 +59,7 @@ class Adaline:
         for pair in data:
             values, y = pair
             exct_val = self.excitation(values)
-            class_y = self.unipolar_function(exct_val)
+            class_y = self.bipolar_function(exct_val)
             print("Values:", values, "Class", class_y)
             if class_y == y:
                 correct_classes += 1
