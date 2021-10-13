@@ -1,4 +1,5 @@
 from perceptron import Perceptron
+from adaline import Adaline
 
 # DATA = [x,y]
 # [pair([values], label)]
@@ -7,15 +8,35 @@ data_and = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
 data_or = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 1)]
 data_nor = [([0, 0], 1), ([0, 1], 0), ([1, 0], 0), ([1, 1], 0)]
 
-if __name__ == "__main__":
+EPOCHS = 20
+
+
+def perceptron_test():
+    '''
+    Perceptron Test
+    '''
+    print("\nPERCEPTRON:")
     perceptron = Perceptron()
     perceptron.init(data_nor)
-    for i in range(100):
+    for _ in range(EPOCHS):
         perceptron.train()
-    perceptron.print()
-
-
+    perceptron.print_wages_and_bias()
     perceptron.classify(data_nor)
-    # res = excitation(values, wages, bias)
-    # # print(res)
-    # print(unipolar_function(res, threshold))
+
+
+def adaline_test():
+    '''
+    Adaline Test
+    '''
+    print("\nAdaline:")
+    adaline = Adaline()
+    adaline.init(data_and)
+    # for _ in range(EPOCHS):
+    adaline.train()
+    adaline.print_wages_and_bias()
+    adaline.classify(data_nor)
+
+
+if __name__ == "__main__":
+    # perceptron_test()
+    adaline_test()
