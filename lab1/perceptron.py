@@ -3,7 +3,7 @@ import numpy as np
 
 class Perceptron:
     def __init__(self):
-        self.wages = [0.1, 0.05]
+        self.wages = np.array([0.1, 0.05])
         self.bias = 0
         self.threshold = 0
         self.learning_rate = 0.01
@@ -26,35 +26,34 @@ class Perceptron:
         if self.data == []:
             return False
 
-        for pair in self.data:
-            y = pair[1]
-            values = pair[0]
-            exct_val = self.excitation(values)
-            test_y = self.unipolar_function(exct_val)
-            err = self.calculate_error(y, test_y)
-            self.update_wages_and_bias(values, err)
+        error_flag = True
+        while error_flag:
+            error_flag = False
+            for pair in self.data:
+                values, y = pair
+                exct_val = self.excitation(values)
+                test_y = self.unipolar_function(exct_val)
+                err = self.calculate_error(y, test_y)
+                self.update_wages_and_bias(values, err)
+                if err != 0:
+                    error_flag = True
 
     def calculate_error(self, y, test_y):
         return y - test_y
 
     def update_wages_and_bias(self, x, error):
-        for i in range(0, len(x)):
-            self.wages[i] = self.wages[i] + self.learning_rate * (error * x[i])
+        self.wages = np.array(self.wages) + ((2 * self.learning_rate * error) * np.array(x))
         self.bias = self.bias + self.learning_rate * error
 
     def classify(self, data):
-        correct_classes = 0
-        incorrect_classes = 0
+        correct_classes = []
         for pair in data:
             values, y = pair
             exct_val = self.excitation(values)
             class_y = self.unipolar_function(exct_val)
             print("Values:", values, "Class", class_y)
-            if class_y == y:
-                correct_classes += 1
-            else:
-                incorrect_classes += 1
-        print("Correctness:", correct_classes / (correct_classes + incorrect_classes) * 100, "%")
+            correct_classes.append(1 if class_y == y else 0)
+        print("Correctness:", np.sum(correct_classes) / len(correct_classes) * 100, "%")
 
     def print_wages_and_bias(self):
         print("Wages:", self.wages)
