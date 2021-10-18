@@ -15,7 +15,7 @@ data_xor_bi = [([-1, -1], -1), ([-1, 1], 1), ([1, -1], 1), ([1, 1], -1)]
 
 
 EPOCHS = 100
-DATA_SIZE = 100
+DATA_SIZE = 10
 
 
 def perceptron_test():
@@ -24,11 +24,11 @@ def perceptron_test():
     '''
     print("\nPERCEPTRON:")
     perceptron = Perceptron()
-    data = tools.gen_and_data(DATA_SIZE)
+    data = tools.gen_and_data_bi(DATA_SIZE)
     perceptron.init(data)
     perceptron.train()
     perceptron.print_wages_and_bias()
-    perceptron.classify(data_and)
+    perceptron.classify(data_and_bi)
 
 
 def adaline_test():
@@ -45,5 +45,5 @@ def adaline_test():
 
 
 if __name__ == "__main__":
-    # perceptron_test()
-    adaline_test()
+    perceptron_test()
+    # adaline_test()

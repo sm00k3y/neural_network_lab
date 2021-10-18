@@ -3,12 +3,13 @@ import numpy as np
 
 class Perceptron:
     def __init__(self):
-        self.wages = np.array([0.1, 0.05])
+        self.wages = np.array([0.1, 1])
         self.bias = 0
         self.threshold = 0
-        self.learning_rate = 0.01
+        self.learning_rate = 0.0001
         self.use_unipolar = True
         self.data = []
+        self.epoch_number = 0
 
     def init(self, data):
         self.data = data
@@ -32,11 +33,13 @@ class Perceptron:
             for pair in self.data:
                 values, y = pair
                 exct_val = self.excitation(values)
-                test_y = self.unipolar_function(exct_val)
+                test_y = self.bipolar_function(exct_val)
                 err = self.calculate_error(y, test_y)
                 self.update_wages_and_bias(values, err)
                 if err != 0:
                     error_flag = True
+            self.epoch_number += 1
+            print("EPOCH", self.epoch_number, "  Error: True")
 
     def calculate_error(self, y, test_y):
         return y - test_y
