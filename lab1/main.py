@@ -37,13 +37,13 @@ def adaline_test():
     '''
     print("\nAdaline:")
     adaline = Adaline()
-    # data = tools.gen_and_data_bi(DATA_SIZE)
-    adaline.init(data_xor_bi)
+    data = tools.gen_and_data_bi(DATA_SIZE)
+    adaline.init(data)
     adaline.train()
     adaline.print_wages_and_bias()
     adaline.classify(data_and_bi)
 
 
 if __name__ == "__main__":
-    perceptron_test()
-    # adaline_test()
+    # perceptron_test()
+    adaline_test()

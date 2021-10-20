@@ -3,8 +3,8 @@ import numpy as np
 
 class Adaline:
     def __init__(self):
-        self.wages = np.array([0.1, 0.05])
-        self.min_accurracy = 1.07
+        self.wages = np.array([10, 10])
+        self.min_accurracy = 200
         self.threshold = 0
         self.bias = 0
         self.learning_rate = 0.01
