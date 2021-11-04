@@ -1,0 +1,44 @@
+TESTING DIFFERENT NEURONS NUMBER IN ONE HIDDEN LAYER
+
+
+Neurons count: 10
+
+Epoch 0: 154 / 1000
+Epoch 1: 175 / 1000
+Epoch 2: 185 / 1000
+Epoch 3: 198 / 1000
+Epoch 4: 218 / 1000
+Epoch 5: 237 / 1000
+Epoch 6: 241 / 1000
+Epoch 7: 273 / 1000
+Epoch 8: 281 / 1000
+Epoch 9: 294 / 1000
+Epoch 10: 314 / 1000
+Epoch 11: 321 / 1000
+Epoch 12: 342 / 1000
+Epoch 13: 352 / 1000
+Epoch 14: 366 / 1000
+Epoch 15: 378 / 1000
+Epoch 16: 392 / 1000
+Epoch 17: 409 / 1000
+Epoch 18: 417 / 1000
+Epoch 19: 421 / 1000
+Epoch 20: 428 / 1000
+
+TIME: 1.3614935874938965 s
+
+
+Neurons count: 15
+
+Epoch 0: 166 / 1000
+Epoch 1: 182 / 1000
+Epoch 2: 211 / 1000
+Epoch 3: 230 / 1000
+Epoch 4: 277 / 1000
+Epoch 5: 301 / 1000
+Epoch 6: 325 / 1000
+Epoch 7: 352 / 1000
+Epoch 8: 372 / 1000
+Epoch 9: 381 / 1000
+Epoch 10: 393 / 1000
+Epoch 11: 409 / 1000

@@ -5,27 +5,41 @@ import random
 
 class MLP:
     # INIT FUNCTIONS
-    def __init__(self, data_count, layers, labels):
-        self.neurons_by_layers = []
-        self.weights_by_layers = []
-        self.first_layer_neuron_count = data_count
-        self.layers_count = layers
-        self.labels_count = labels
+    def __init__(self, training_data, hidden_layers, labels_count, neurons_by_layers=[], weights_range=(0, 0)):
+        self.training_data = training_data
+        self.layers_count = hidden_layers
+        self.first_layer_neuron_count = len(training_data[0][0].flatten())
+        self.labels_count = labels_count
 
-        self.init_layers()
-        self.init_weights()
-        self.biases = np.zeros(layers + 1)
+        self.neurons_by_layers = self.init_layers(neurons_by_layers)
+        self.weights_by_layers = self.init_weights(weights_range)
+        self.biases = np.zeros(hidden_layers + 1)
 
-    def init_layers(self):
-        self.neurons_by_layers.append(self.first_layer_neuron_count)
-        for _ in range(self.layers_count):
-            self.neurons_by_layers.append(math.floor(np.average([self.neurons_by_layers[-1], self.labels_count])))
-        self.neurons_by_layers.append(self.labels_count)
+    def init_layers(self, neurons_by_layers):
+        ret = []
+        if (neurons_by_layers == [] or len(neurons_by_layers) != self.layers_count):
+            ret.append(self.first_layer_neuron_count)
+            for _ in range(self.layers_count):
+                ret.append(math.floor(np.average([ret[-1], self.labels_count])))
+            ret.append(self.labels_count)
+        else:
+            ret.append(self.first_layer_neuron_count)
+            for layer in neurons_by_layers:
+                ret.append(layer)
+            ret.append(self.labels_count)
+        return ret
 
-    def init_weights(self):
-        for layer in range(self.layers_count + 1):
-            self.weights_by_layers.append(np.random.normal(
-                size=(self.neurons_by_layers[layer], self.neurons_by_layers[layer + 1])))
+    def init_weights(self, weights_range):
+        ret = []
+        if weights_range == (0, 0):
+            for layer in range(self.layers_count + 1):
+                ret.append(np.random.normal(
+                           size=(self.neurons_by_layers[layer], self.neurons_by_layers[layer + 1])))
+        else:
+            for layer in range(self.layers_count + 1):
+                ret.append(np.random.uniform(low=weights_range[0], high=weights_range[1],
+                           size=(self.neurons_by_layers[layer], self.neurons_by_layers[layer + 1])))
+        return ret
 
     def softmax(self, x):
         """Compute softmax values for each sets of scores in x."""
@@ -72,13 +86,13 @@ class MLP:
         return self.softmax(a)
 
     # Stochastic Gradient Descent
-    def SDG(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
+    def SDG(self, epochs, mini_batch_size, learning_rate, test_data=None):
         if test_data:
             n_test = len(test_data)
-        n = len(training_data)
+        n = len(self.training_data)
         for j in range(epochs):
-            random.shuffle(training_data)
-            mini_batches = [training_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
+            random.shuffle(self.training_data)
+            mini_batches = [self.training_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
             for batch in mini_batches:
                 self.update_batch(batch, learning_rate)
             if test_data:
@@ -119,7 +133,8 @@ class MLP:
         # BACKPROP
         cost_der = self.cost_derivative(activations_arr[-1], y)
         errors.append(cost_der)
-        delta_w = np.dot(activations_arr[-2].reshape(1, activations_arr[-2].shape[0]).T, cost_der.reshape((1, cost_der.shape[0])))
+        delta_w = np.dot(activations_arr[-2].reshape(1, activations_arr[-2].shape[0]).T,
+                         cost_der.reshape((1, cost_der.shape[0])))
         delta_weights[-1] = delta_w
         delta_biases[-1] = cost_der
 
@@ -128,7 +143,8 @@ class MLP:
             errors.insert(0, errors_bef_act.T)
             # error = np.multiply(errors_bef_act.T, self.sigmoid_derivative(inputs_by_layers[-layer]))
             error = errors_bef_act.T * self.sigmoid_derivative(inputs_by_layers[-layer])
-            delta_w = np.dot(activations_arr[-layer-1].reshape((1, activations_arr[-layer-1].shape[0])).T, error.reshape(1, error.shape[0]))
+            delta_w = np.dot(activations_arr[-layer-1].reshape((1, activations_arr[-layer-1].shape[0])).T,
+                             error.reshape(1, error.shape[0]))
             delta_weights[-layer] = delta_w
             delta_biases[-layer] = error
 
@@ -150,3 +166,8 @@ class MLP:
         for i, matrix in enumerate(self.weights_by_layers):
             print("Matrix", i+1, "shape:", np.shape(matrix))
         print("Biases:", self.biases)
+
+    def serialize_model(self):
+        for i, weights in enumerate(self.weights_by_layers):
+            np.savetxt(f"serialization/weights_{i}.csv", np.asarray(weights), delimiter=",")
+        # np.savetxt("serialization/biases.csv", self.biases, delimiter=',')

@@ -30,6 +30,24 @@ def normalize_data(data):
     return data / 255
 
 
+def get_data(sample=0):
+    if (sample != 0):
+        training_data = load_train_data()[:sample]
+        training_labels = load_train_labels()[:sample]
+        test_data = load_test_data()[:sample]
+        test_labels = load_test_labels()[:sample]
+    else:
+        training_data = load_train_data()
+        training_labels = load_train_labels()
+        test_data = load_test_data()
+        test_labels = load_test_labels()
+
+    prep_training_data = prep_data(normalize_data(training_data), training_labels)
+    prep_test_data = prep_data(normalize_data(test_data), test_labels)
+
+    return prep_training_data, prep_test_data
+
+
 def prep_data(x, y):
     good_data = []
     for data_x, data_y in zip(x, y):
