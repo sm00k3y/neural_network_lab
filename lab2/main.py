@@ -5,7 +5,7 @@ import tools
 # For tests
 FIRST_LAYER_NEURONS = 20
 LABELS_COUNT = 3
-LAYERS_COUNT = 2
+LAYERS_COUNT = 1
 
 SAMPLE = 200
 
@@ -37,4 +37,5 @@ if __name__ == "__main__":
     # print("PREDICTION ARRAY SUM", sum(preds))
     # print("ARGMAX", np.argmax(preds))
 
-    mlp.SDG(good_data, 100, 100, 0.01, good_test_data)
+    #   SDG(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
+    mlp.SDG(good_data, 100, 10, 0.1, good_test_data)

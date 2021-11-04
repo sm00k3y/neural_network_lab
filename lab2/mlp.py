@@ -25,21 +25,16 @@ class MLP:
     def init_weights(self):
         for layer in range(self.layers_count + 1):
             self.weights_by_layers.append(np.random.normal(
-                size=(self.neurons_by_layers[layer], self.neurons_by_layers[layer + 1])) / 255)
-
-    # ALGORITHM FUNCTIONS
-    # def excitation(self, X, curr_layer):
-    #     a = np.dot(X, self.weights_by_layers[curr_layer])
-    #     a = a + self.biases[curr_layer]
-    #     return a
-
-    # def softmax(self, vector):
-    #     return np.exp(vector) / np.exp(vector).sum(0)
+                size=(self.neurons_by_layers[layer], self.neurons_by_layers[layer + 1])))
 
     def softmax(self, x):
         """Compute softmax values for each sets of scores in x."""
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum()
+
+    # def softmax(self, x):
+    #     """Compute softmax values for each sets of scores in x."""
+    #     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
     def activation_sigm(self, exct_val):
         return 1.0 / (1.0 + np.exp(-exct_val))
@@ -68,11 +63,8 @@ class MLP:
         a = input_data
         # print(a)
         for i, (b, w) in enumerate(zip(self.biases, self.weights_by_layers)):
-            # a = self.activation_sigm(np.dot(a, w) + b)
-            # a = self.activation_relu(np.dot(a, w) + b)
-            # a = self.activation_softplus(np.dot(a, w) + b)
-            a = np.dot(a, w) + b
-            # if i != self.layers_count + 1:
+            a = self.activation_sigm(np.dot(a, w) + b)
+            # if i != self.layers_count:
             #     a = self.activation_sigm(np.dot(a, w) + b)
             # else:
             #     a = np.dot(a, w) + b
@@ -101,7 +93,6 @@ class MLP:
             mini_delta_biases, mini_delta_weights = self.backprop(x, y)
             delta_biases = [db + mdb for db, mdb in zip(delta_biases, mini_delta_biases)]
             delta_weights = [dw + mdw for dw, mdw in zip(delta_weights, mini_delta_weights)]
-            # print("DONE")
         self.weights_by_layers = [weights-(learning_rate / len(batch)) * dw
                                   for weights, dw in zip(self.weights_by_layers, delta_weights)]
         self.biases = [b - (learning_rate / len(batch)) * nb for b, nb in zip(self.biases, delta_biases)]
@@ -111,27 +102,21 @@ class MLP:
         delta_weights = [np.zeros(w.shape) for w in self.weights_by_layers]
         activation = x
         activations_arr = [x]
-        inputs_by_layers = [x]
+        inputs_by_layers = []
         errors = []
 
         # FeedForward
         for i, (b, w) in enumerate(zip(self.biases, self.weights_by_layers)):
             input_layer = np.dot(activation, w) + b
             inputs_by_layers.append(input_layer)
-            # if i == self.layers_count:  # Tutaj chyba bez +1
+            # if i == self.layers_count:
             #     activation = self.softmax(input_layer)
             # else:
             #     activation = self.activation_sigm(input_layer)
             activation = self.activation_sigm(input_layer)
             activations_arr.append(activation)
 
-        # print(len(inputs_by_layers))
-        # print(len(activations_arr))
-
         # BACKPROP
-        # delta = np.multiply(self.cost_derivative(activations_arr[-1], y), self.sigmoid_derivative(inputs_by_layers[-1]))
-        # errors = np.dot(np.expand_dims(cost_der, 1), np.expand_dims(activations_arr[-2], 1).T)
-        # cost_der = np.expand_dims(cost_der, 0)
         cost_der = self.cost_derivative(activations_arr[-1], y)
         errors.append(cost_der)
         delta_w = np.dot(activations_arr[-2].reshape(1, activations_arr[-2].shape[0]).T, cost_der.reshape((1, cost_der.shape[0])))
@@ -139,32 +124,23 @@ class MLP:
         delta_biases[-1] = cost_der
 
         for layer in range(2, self.layers_count + 2):
-            # errors_bef_act = np.dot(self.weights_by_layers[-layer + 1], delta_weights[-layer + 1])
-            # for e in errors:
-            #     print(e.shape)
-            # print(self.weights_by_layers[-layer+1].shape)
-            # print(errors[-layer + 1].shape)
             errors_bef_act = np.dot(self.weights_by_layers[-layer + 1], errors[-layer + 1].T)
-            error = np.multiply(errors_bef_act.T, self.sigmoid_derivative(inputs_by_layers[-layer]))
-            errors.insert(0, error)
-            # error = np.dot(activations_arr[-layer-1].T, error)
+            errors.insert(0, errors_bef_act.T)
+            # error = np.multiply(errors_bef_act.T, self.sigmoid_derivative(inputs_by_layers[-layer]))
+            error = errors_bef_act.T * self.sigmoid_derivative(inputs_by_layers[-layer])
             delta_w = np.dot(activations_arr[-layer-1].reshape((1, activations_arr[-layer-1].shape[0])).T, error.reshape(1, error.shape[0]))
             delta_weights[-layer] = delta_w
             delta_biases[-layer] = error
-            # print(layer)
 
         return delta_biases, delta_weights
 
     def cost_derivative(self, output_activations, y):
         good_y = np.zeros(10)
         good_y[y] = 1
-        return -(y - output_activations)
+        return output_activations - good_y
 
     def evaluate(self, test_data):
-        # result = [self.forward_chaining(x) for x, y in test_data]
-        # print(result[45])
         test_results = [(np.argmax(self.forward_chaining(x)), y) for (x, y) in test_data]
-        # print(test_results)
         return sum(int(x == y) for (x, y) in test_results)
 
     # PRINTING
@@ -174,16 +150,3 @@ class MLP:
         for i, matrix in enumerate(self.weights_by_layers):
             print("Matrix", i+1, "shape:", np.shape(matrix))
         print("Biases:", self.biases)
-
-    # def forward_chaining(self, training_data, training_labels):
-        # predicted_labels = []
-        # for data, label in zip(training_data[:2], training_labels[:2]):
-        #     layer_input = data.flatten()
-        #     for curr_layer in range(self.layers_count + 1):
-        #         exct_vector = self.excitation(layer_input, curr_layer)
-        #         next_layer_input = list(map(self.activation_sigm, exct_vector))
-        #         layer_input = next_layer_input
-
-        #     predicted_labels = self.softmax(layer_input)
-
-        # return predicted_labels
