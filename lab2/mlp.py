@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import random
+import copy
 
 
 class MLP:
@@ -107,9 +108,11 @@ class MLP:
             mini_delta_biases, mini_delta_weights = self.backprop(x, y)
             delta_biases = [db + mdb for db, mdb in zip(delta_biases, mini_delta_biases)]
             delta_weights = [dw + mdw for dw, mdw in zip(delta_weights, mini_delta_weights)]
-        self.weights_by_layers = [weights-(learning_rate / len(batch)) * dw
-                                  for weights, dw in zip(self.weights_by_layers, delta_weights)]
-        self.biases = [b - (learning_rate / len(batch)) * nb for b, nb in zip(self.biases, delta_biases)]
+        # self.default(learning_rate, len(batch), delta_weights, delta_biases)
+        self.momentum(learning_rate, len(batch), delta_weights, delta_biases, 0.7)
+        # self.weights_by_layers = [weights-(learning_rate / len(batch)) * dw
+        #                           for weights, dw in zip(self.weights_by_layers, delta_weights)]
+        # self.biases = [b - (learning_rate / len(batch)) * nb for b, nb in zip(self.biases, delta_biases)]
 
     def backprop(self, x, y):
         delta_biases = [np.zeros(b.shape) for b in self.biases]
@@ -171,3 +174,20 @@ class MLP:
         for i, weights in enumerate(self.weights_by_layers):
             np.savetxt(f"serialization/weights_{i}.csv", np.asarray(weights), delimiter=",")
         # np.savetxt("serialization/biases.csv", self.biases, delimiter=',')
+
+    # OPTIMIZERS
+    def default(self, learning_rate, batch_len, delta_weights, delta_biases):
+        self.weights_by_layers = [weights-(learning_rate / batch_len) * dw
+                                  for weights, dw in zip(self.weights_by_layers, delta_weights)]
+        self.biases = [b - (learning_rate / batch_len) * nb
+                       for b, nb in zip(self.biases, delta_biases)]
+
+    def momentum(self, learning_rate, batch_len, delta_weights, delta_biases, momentum_rate):
+        self.weights_by_layers = [weights-(learning_rate / batch_len) * dw
+                                  for weights, dw in zip(self.weights_by_layers, delta_weights)]
+        self.biases = [b - (learning_rate / batch_len) * nb
+                       for b, nb in zip(self.biases, delta_biases)]
+        self.weights_by_layers += momentum_rate * self.previous_delta_weights
+        self.biases += momentum_rate * self.previous_delta_biases
+        self.previous_delta_weights = copy.deepcopy(delta_weights)
+        self.previous_delta_biases = copy.deepcopy(delta_biases)
